@@ -1,8 +1,9 @@
 //clinc.js
 
-// 导入模块
+// 导入API模块
 const api = require('../../utils/api.js');
-const { RoleCode, RoleUtil } = require('../../utils/role-enum.js');
+// 导入角色相关模块
+const {RoleCode, RoleUtil} = require('../../utils/role-enum.js')
 const session = require('../../utils/session.js');
 
 /**
@@ -13,12 +14,17 @@ Page({
    * 页面初始数据
    */
   data: {
+    // 用户角色信息
+    userInfo: null,
+    isNormalUser: false,
+    isProfessionalUser: false,
+    
     // 分页参数
     page: 1,
     size: 10,
     total: 0,
     pages: 0,
-    pageSizeOptions: ['10', '20', '50', '100'],
+    pageSizeOptions: ['3', '5', '10'],
     pageSizeIndex: 0,
     
     // 搜索参数
@@ -32,13 +38,7 @@ Page({
     reminderList: [],
     
     // 状态标志
-    isLoading: false,
-    
-    // 用户角色信息
-    userRoleBit: null,
-    isNormalUser: false,
-    isProfessionalUser: false,
-    userRoleDescriptions: ['未知用户']
+    isLoading: false
   },
 
   /**
@@ -51,8 +51,49 @@ Page({
     const app = getApp();
     app.registerPage(this);
     
-    // 获取用户角色
+    // 检查用户角色
     this.checkUserRole();
+  },
+  
+  /**
+   * 检查用户角色并初始化数据
+   */
+  checkUserRole: function() {
+    try {
+      // 获取用户信息
+      const userInfo = session.get('userInfo') || {};
+      console.log('当前用户信息:', userInfo);
+      
+      // 获取用户角色
+      const userRoles = userInfo.roles || [];
+      console.log('当前用户角色:', userRoles);
+      
+      // 判断用户类型
+      const isNormalUser = RoleUtil.isNormalUser(userRoles);
+      const isProfessionalUser = RoleUtil.isProfessionalUser(userRoles);
+
+      // 更新用户角色状态
+      this.setData({
+        userInfo: userInfo,
+        isNormalUser: isNormalUser,
+        isProfessionalUser: isProfessionalUser
+      });
+      
+      console.log('用户角色检查结果: isNormalUser=' + isNormalUser + ', isProfessionalUser=' + isProfessionalUser);
+      
+      // 初始加载数据
+      this.loadReminderData();
+      
+    } catch (error) {
+      console.error('检查用户角色失败:', error);
+      // 出错时默认为普通用户
+      this.setData({
+        isNormalUser: true,
+        isProfessionalUser: false
+      });
+      // 尝试加载数据
+      this.loadReminderData();
+    }
   },
   
   /**
@@ -110,36 +151,7 @@ Page({
     return this.getDaysDiff(dateStr) < 2;
   },
   
-  /**
-   * 检查用户角色
-   */
-  checkUserRole: function() {
-    // 从会话中获取用户角色位图
-    const userRoleBit = session.getRoleBit();
-    
-    // 判断用户角色类型
-    const isNormalUser = RoleUtil.isNormalUser(userRoleBit);
-    const isProfessionalUser = RoleUtil.isProfessionalUser(userRoleBit);
-    const userRoleDescriptions = RoleUtil.getUserRoleDescriptions(userRoleBit);
-    
-    console.log('用户角色检查:', {
-      userRoleBit,
-      isNormalUser,
-      isProfessionalUser,
-      userRoleDescriptions
-    });
-    
-    // 更新页面数据
-    this.setData({
-      userRoleBit,
-      isNormalUser,
-      isProfessionalUser,
-      userRoleDescriptions
-    });
-    
-    // 初始加载数据
-    this.loadReminderData();
-  },
+
 
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -202,21 +214,13 @@ Page({
    * @param {Function} callback - 回调函数
    */
   loadReminderData: function(callback) {
-    const { isNormalUser, isProfessionalUser, page, size, searchParams } = this.data;
+    const { page, size, searchParams, isProfessionalUser, isNormalUser } = this.data;
     
     // 根据用户角色构建不同的请求参数
     let params = {};
     
-    if (isNormalUser) {
-      // 普通用户：固定获取1条自己的数据，不需要搜索参数
-      console.log('普通用户模式：获取自己的最新一条记录');
-      params = {
-        page: 1,
-        size: 1
-      };
-    } else if (isProfessionalUser) {
-      // 专业用户：支持分页和搜索
-      console.log('专业用户模式：支持多记录查询');
+    if (isProfessionalUser) {
+      // 专业用户：使用完整的分页和搜索功能
       params = {
         page: page,
         size: size,
@@ -224,14 +228,18 @@ Page({
         idNo: searchParams.idNo,
         phone: searchParams.phone
       };
-    } else {
-      // 其他用户角色：默认获取1条数据
-      console.log('其他用户角色：默认查询模式');
+      console.log('专业用户加载就诊提醒记录，参数:', params);
+    } else if (isNormalUser) {
+      // 普通用户：不分页，不使用搜索功能
+      // 这里可以根据实际需求调整普通用户的查询参数
       params = {
-        page: 1,
-        size: 1
+        // 普通用户可能只需要自身的数据
+        size: 100 // 给普通用户一个合理的较大数量限制
       };
+      console.log('普通用户加载就诊提醒记录，参数:', params);
     }
+    
+    console.log('加载就诊提醒记录，参数:', params);
     
     // 设置加载状态
     this.setData({ isLoading: true });
@@ -248,15 +256,22 @@ Page({
             // 标记紧急提醒记录
             dataList = this.markUrgentRecords(dataList);
             
-            // 对于普通用户，如果有多条数据（意外情况），只保留第一条
-            if (isNormalUser && dataList.length > 1) {
-              dataList = [dataList[0]];
+            // 根据用户角色处理数据
+            if (isNormalUser) {
+              // 普通用户：只显示前N条数据（如果需要）
+              // 这里可以根据实际需求调整普通用户的数据展示数量
+              const MAX_NORMAL_USER_RECORDS = 20;
+              if (dataList.length > MAX_NORMAL_USER_RECORDS) {
+                dataList = dataList.slice(0, MAX_NORMAL_USER_RECORDS);
+                console.log('普通用户数据已截断为', MAX_NORMAL_USER_RECORDS, '条');
+              }
             }
             
+            // 更新页面数据
             this.setData({
               reminderList: dataList,
-              total: res.total || dataList.length,
-              pages: res.pages || 1
+              total: isProfessionalUser ? (res.total || dataList.length) : dataList.length,
+              pages: isProfessionalUser ? (res.pages || 1) : 1
             });
           } else {
           wx.showToast({
@@ -374,9 +389,9 @@ Page({
   },
   
   /**
-   * 判断下次就诊日期是否紧急（7天内）
+   * 判断下次就诊日期是否为7天内的提醒
    */
-  isUrgent: function(nextDateStr) {
+  isUpcoming: function(nextDateStr) {
     if (!nextDateStr) return false;
     
     try {

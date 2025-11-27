@@ -6,7 +6,7 @@
     <text class="title-text">定期就诊提醒</text>
   </view>
   
-  <!-- 搜索区域 - 仅专业用户可见 -->
+  <!-- 搜索区域 仅专业用户可见 -->
   <view class="search-area" wx:if="{{isProfessionalUser}}">
     <view class="search-item">
       <text class="search-label">姓名：</text>
@@ -60,7 +60,7 @@
     </view>
   </view>
   
-  <!-- 分页组件 - 仅专业用户可见 -->
+  <!-- 分页组件 仅专业用户可见 -->
   <view class="pagination" wx:if="{{isProfessionalUser && total > 0 && !isLoading}}">
     <view class="pagination-info">
       <text>共 {{total}} 条记录</text>
