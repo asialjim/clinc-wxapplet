@@ -1,7 +1,11 @@
 {
   "pages": [
+    "pages/article/article",
+    "pages/article/detail",
+    "pages/clinc/clinc",
     "pages/index/index",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/video/video"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -17,6 +21,18 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
+        "iconPath": "icon/home.png",
+        "selectedIconPath": "icon/home_active.png"
+      },
+      {
+        "pagePath": "pages/article/article",
+        "text": "文章",
+        "iconPath": "icon/file-text.png",
+        "selectedIconPath": "icon/file-text_active.png"
+      },
+      {
+        "pagePath": "pages/clinc/clinc",
+        "text": "医疗",
         "iconPath": "icon/activity.png",
         "selectedIconPath": "icon/activity_active.png"
       },
@@ -25,6 +41,12 @@
         "text": "我的",
         "iconPath": "icon/user.png",
         "selectedIconPath": "icon/user_active.png"
+      },
+      {
+        "pagePath": "pages/sensitive/sensitive",
+        "text": "敏感数据",
+        "iconPath": "icon/lock.png",
+        "selectedIconPath": "icon/lock_active.png"
       }
     ]
   },

@@ -541,3 +541,44 @@
   color: #666;
   line-height: 1.6;
 }
+
+/* 敏感数据测试区域样式 */
+.test-section {
+  margin: 40rpx 20rpx;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  border-radius: 10rpx;
+}
+
+.test-header {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
+
+.test-subheader {
+  font-size: 28rpx;
+  font-weight: bold;
+  margin: 20rpx 0 15rpx 0;
+  color: #1890ff;
+  border-left: 4rpx solid #1890ff;
+  padding-left: 10rpx;
+}
+
+.test-item {
+  display: flex;
+  margin-bottom: 15rpx;
+  font-size: 28rpx;
+}
+
+.test-label {
+  width: 200rpx;
+  color: #666;
+}
+
+.test-value {
+  flex: 1;
+  color: #333;
+  word-break: break-all;
+}

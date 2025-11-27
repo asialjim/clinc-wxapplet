@@ -1,0 +1,14 @@
+<!-- sensitive-data.wxml -->
+<!-- 支持value属性方式，并将所有属性传递给内部的text组件 -->
+<text 
+    class="{{class}}" 
+    style="{{style}}" 
+    selectable="{{selectable}}" 
+    user-select="{{userSelect}}" 
+    space="{{space}}" 
+    decode="{{decode}}" 
+    disable-whitespace-collapse="{{disableWhitespaceCollapse}}"
+    bindtap="{{bindtap}}"
+>
+    {{displayValue}}
+</text>

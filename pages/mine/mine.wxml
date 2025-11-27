@@ -1,4 +1,7 @@
 <!-- mine.wxml -->
+<!-- 引入敏感数据脱敏 WXS 模块 -->
+<wxs src="../../utils/sensitive.wxs" module="sensitive" />
+
 <view class="container">
   <!-- 全局加载遮罩 -->
   <view class="global-loading-mask" wx:if="{{isLoading}}">
@@ -18,7 +21,7 @@
     
     <!-- 用户昵称 -->
     <view class="user-info">
-      <text class="nickname" bindtap="onNicknameClick">{{userInfo.nickName}}</text>
+        <text class="nickname" bindtap="onNicknameClick" >{{sensitive(userInfo.nickName)}}</text>
     </view>
     
     <!-- 昵称修改表单 -->
@@ -40,7 +43,7 @@
     <!-- 用户手机号 - 可点击进行授权 -->
     <view class="phone-container">
       <button open-type="getPhoneNumber" bind:getphonenumber="onGetPhoneNumber" class="phone-button">
-        <text class="phone-number">{{userInfo.phoneNumber}}</text>
+          <text class="phone-number" >{{sensitive(userInfo.phoneNumber)}}</text>
       </button>
     </view>
     
@@ -64,11 +67,11 @@
         </view>
         <view class="info-item" wx:if="{{realNameInfo.name}}">
           <text class="info-label">姓名：</text>
-          <text class="info-value">{{realNameInfo.name}}</text>
+          <text class="info-value">{{sensitive(realNameInfo.name)}}</text>
         </view>
         <view class="info-item" wx:if="{{realNameInfo.number}}">
           <text class="info-label">号码：</text>
-          <text class="info-value">{{realNameInfo.number}}</text>
+          <text class="info-value">{{sensitive(realNameInfo.number)}}</text>
         </view>
         <view class="info-item" wx:if="{{realNameInfo.gender}}">
           <text class="info-label">性别：</text>
@@ -133,4 +136,6 @@
       </form>
     </view>
   </view>
+  
+  <!-- 敏感数据测试已迁移到专用页面 -->
 </view>

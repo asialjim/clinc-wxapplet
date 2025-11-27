@@ -1,0 +1,12 @@
+// mask.wxs
+var maskFilter = function(value) {
+  if (!value) return value;
+  
+  var strValue = value.toString();
+  var pattern = '^_mask\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|([^|]+)$';
+  var match = strValue.match(pattern);
+  
+  return match && match[1] ? match[1] : strValue;
+};
+
+module.exports = maskFilter;
