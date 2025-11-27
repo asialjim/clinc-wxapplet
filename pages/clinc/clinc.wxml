@@ -38,9 +38,7 @@
         <text class="list-cell phone-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.phone || '-'}}</text>
         <text class="list-cell date-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDate || '-'}}</text>
         <text class="list-cell days-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDays || '-'}}</text>
-        <text class="list-cell next-cell {{isUrgent(item.nextDate) ? 'urgent' : ''}} {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">
-          {{item.nextDate || '-'}}
-        </text>
+        <text class="list-cell next-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.nextDate || '-'}}</text>
       </view>
     </view>
     
