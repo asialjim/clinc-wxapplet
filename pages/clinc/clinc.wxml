@@ -1,4 +1,5 @@
 <!--clinc.wxml-->
+<wxs src="../../utils/sensitive.wxs" module="sensitive" />
 
 <view class="container">
   
@@ -35,7 +36,7 @@
     <!-- 列表内容 -->
     <view wx:if="{{!isLoading && reminderList.length > 0}}" class="list-content">
       <view wx:for="{{reminderList}}" wx:key="id" class="list-item {{isUrgent(item.nextDate) ? 'urgent-item' : ''}}">
-        <text class="list-cell phone-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.phone || '-'}}</text>
+        <text class="list-cell phone-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{sensitive(item.phone || '-')    }}</text>
         <text class="list-cell date-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDate || '-'}}</text>
         <text class="list-cell days-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDays || '-'}}</text>
         <text class="list-cell next-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.nextDate || '-'}}</text>
