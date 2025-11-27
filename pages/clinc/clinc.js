@@ -252,15 +252,16 @@ Page({
     this.setData({ isLoading: true });
     
     // 构建完整的REST API URL并调用
-    const apiUrl = rest('/clinc/prescription/reminder/list');
+    const apiUrl = rest('/clinc/prescription/reminder/list', params);
     console.log('API请求URL:', apiUrl);
-    api.get(apiUrl, params)
+    api.get(apiUrl,  {pageCallable: data => {
+        console.log('分页结果:', data);
+    }})
       .then(res => {
         console.log('获取就诊提醒记录成功:', res);
-        
-        if (res.code === '0' && res.data) {
+        if (res) {
             // 确保数据是数组格式
-            let dataList = Array.isArray(res.data) ? res.data : [];
+            let dataList = Array.isArray(res) ? res : [];
             
             // 标记紧急提醒记录
             dataList = this.markUrgentRecords(dataList);
