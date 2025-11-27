@@ -2,6 +2,8 @@
 
 // 导入API模块
 const api = require('../../utils/api.js');
+// 导入URL构建工具
+const { rest } = require('../../utils/url.js');
 // 导入角色相关模块
 const {RoleCode, RoleUtil} = require('../../utils/role-enum.js')
 const session = require('../../utils/session.js');
@@ -64,14 +66,19 @@ Page({
       const userInfo = session.get('userInfo') || {};
       console.log('当前用户信息:', userInfo);
       
-      // 获取用户角色
-      const userRoles = userInfo.roles || [];
-      console.log('当前用户角色:', userRoles);
+      // 获取用户角色位图
+      const roleBit = userInfo.roleBit || 0;
+      console.log('当前用户角色位图:', roleBit);
       
-      // 判断用户类型
-      const isNormalUser = RoleUtil.isNormalUser(userRoles);
-      const isProfessionalUser = RoleUtil.isProfessionalUser(userRoles);
-
+      // 使用RoleUtil中定义的方法判断用户类型
+      const isNormalUser = RoleUtil.isNormalUser(roleBit);
+      // 专业用户包括医护人员和管理员
+      const isProfessionalUser = RoleUtil.isProfessionalUser(roleBit) || RoleUtil.isAdmin(roleBit);
+      
+      // 获取用户角色描述
+      const roleDescriptions = RoleUtil.getUserRoleDescriptions(roleBit);
+      console.log('用户角色描述:', roleDescriptions);
+      
       // 更新用户角色状态
       this.setData({
         userInfo: userInfo,
@@ -244,8 +251,10 @@ Page({
     // 设置加载状态
     this.setData({ isLoading: true });
     
-    // 调用API获取数据
-    api.get('/rest/clinc/prescription/reminder/list', params)
+    // 构建完整的REST API URL并调用
+    const apiUrl = rest('/clinc/prescription/reminder/list');
+    console.log('API请求URL:', apiUrl);
+    api.get(apiUrl, params)
       .then(res => {
         console.log('获取就诊提醒记录成功:', res);
         

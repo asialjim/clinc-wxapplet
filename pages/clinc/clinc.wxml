@@ -1,10 +1,6 @@
 <!--clinc.wxml-->
 
 <view class="container">
-  <!-- 医疗服务标题 -->
-  <view class="clinc-title">
-    <text class="title-text">定期就诊提醒</text>
-  </view>
   
   <!-- 搜索区域 仅专业用户可见 -->
   <view class="search-area" wx:if="{{isProfessionalUser}}">
