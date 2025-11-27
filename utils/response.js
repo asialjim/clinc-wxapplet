@@ -46,7 +46,7 @@ function parse(res, pageCallable = null, throwCallable = null) {
 
   // 3. 如果pageable === true，且pageCallable不为空，则调用pageCallable函数
   if (responseData.pageable === true && pageCallable && typeof pageCallable === 'function') {
-    pageCallable(res);
+    pageCallable(responseData);
   }
 
   // 4. 提取data字段值并返回
