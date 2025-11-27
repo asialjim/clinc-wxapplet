@@ -1,122 +1,79 @@
 <!--clinc.wxml-->
+
 <view class="container">
-  <view class="text">
-    <text class="reminder">
-    等待实现
-    https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/1v1voip.html
-    </text>
+  <!-- 医疗服务标题 -->
+  <view class="clinc-title">
+    <text class="title-text">定期就诊提醒</text>
   </view>
-  <!-- 用药提醒/处方台账模块 -->
-  <view class="prescription-reminder" wx:if="{{showPrescriptionModule}}">
-    <!-- 超管/管理员/同时拥有两种权限的用户，同时显示两个模块 -->
-    <view wx:if="{{showBothModules}}">
-      <!-- 普通用户用药提醒 -->
-      <view class="prescription-reminder-inner">
-        <view class="reminder-header">
-          <text class="reminder-title">用药提醒</text>
-          <text class="reminder-subtitle">即将到用药时间</text>
-        </view>
-        <view class="reminder-content">
-          <view class="reminder-item">
-            <text class="reminder-label">上次开药:</text>
-            <text class="reminder-value">{{prescriptionInfo.lastDate}}</text>
-          </view>
-          <view class="reminder-item">
-            <text class="reminder-label">用药天数:</text>
-            <text class="reminder-value">{{prescriptionInfo.lastDays}}天</text>
-          </view>
-          <view class="reminder-item">
-            <text class="reminder-label">下次开药:</text>
-            <text class="reminder-value" style="color: {{daysRemaining < 3 ? '#e64340' : ''}}">{{prescriptionInfo.nextDate}}</text>
-          </view>
-          <view class="reminder-item" wx:if="{{daysRemaining >= 0}}">
-            <text class="reminder-label">剩余天数:</text>
-            <text class="reminder-value" style="color: {{daysRemaining < 3 ? '#e64340' : ''}}">{{daysRemaining}}天</text>
-          </view>
-        </view>
-      </view>
-      
-      <!-- 护工/医师处方台账 -->
-      <view class="prescription-reminder-inner">
-        <view class="ledger-header">
-          <text class="ledger-title">处方台账</text>
-          <text class="ledger-subtitle">最近处方记录</text>
-        </view>
-        <scroll-view class="ledger-list" scroll-y>
-          <block wx:if="{{ledgerList.length > 0}}">
-            <view wx:for="{{ledgerList}}" wx:key="index" class="ledger-item">
-              <text class="ledger-patient">{{item.patientName}}</text>
-              <text class="ledger-date">{{item.prescriptionDate}}</text>
-              <text class="ledger-status">{{item.status}}</text>
-            </view>
-          </block>
-          <view wx:else class="empty-ledger">
-            <text class="empty-text">暂无处方记录</text>
-          </view>
-        </scroll-view>
-      </view>
+  
+  <!-- 搜索区域 - 仅专业用户可见 -->
+  <view class="search-area" wx:if="{{isProfessionalUser}}">
+    <view class="search-item">
+      <text class="search-label">姓名：</text>
+      <input class="search-input" placeholder="请输入姓名" bindinput="onNameInput" value="{{searchParams.name}}"/>
     </view>
-    
-    <!-- 普通用户用药提醒 -->
-    <view wx:elif="{{userRole === 'normal' || userRole === 'idCard'}}">
-      <view class="reminder-header">
-        <text class="reminder-title">用药提醒</text>
-        <text class="reminder-subtitle">即将到用药时间</text>
-      </view>
-      <view class="reminder-content">
-        <view class="reminder-item">
-          <text class="reminder-label">上次开药:</text>
-          <text class="reminder-value">{{prescriptionInfo.lastDate}}</text>
-        </view>
-        <view class="reminder-item">
-          <text class="reminder-label">用药天数:</text>
-          <text class="reminder-value">{{prescriptionInfo.lastDays}}天</text>
-        </view>
-        <view class="reminder-item">
-          <text class="reminder-label">下次开药:</text>
-          <text class="reminder-value" style="color: {{daysRemaining < 3 ? '#e64340' : ''}}">{{prescriptionInfo.nextDate}}</text>
-        </view>
-        <view class="reminder-item" wx:if="{{daysRemaining >= 0}}">
-          <text class="reminder-label">剩余天数:</text>
-          <text class="reminder-value" style="color: {{daysRemaining < 3 ? '#e64340' : ''}}">{{daysRemaining}}天</text>
-        </view>
-      </view>
+    <view class="search-item">
+      <text class="search-label">证件号：</text>
+      <input class="search-input" placeholder="请输入证件号" bindinput="onIdNoInput" value="{{searchParams.idNo}}"/>
     </view>
-    
-    <!-- 护工/医师处方台账 -->
-    <view wx:elif="{{userRole === 'nurse' || userRole === 'doctor' || userRole === 'professional'}}">
-      <view class="ledger-header">
-        <text class="ledger-title">处方台账</text>
-        <text class="ledger-subtitle">最近处方记录</text>
-      </view>
-      <scroll-view class="ledger-list" scroll-y>
-        <block wx:if="{{ledgerList.length > 0}}">
-          <view wx:for="{{ledgerList}}" wx:key="index" class="ledger-item">
-            <text class="ledger-patient">{{item.patientName}}</text>
-            <text class="ledger-date">{{item.prescriptionDate}}</text>
-            <text class="ledger-status">{{item.status}}</text>
-          </view>
-        </block>
-        <view wx:else class="empty-ledger">
-          <text class="empty-text">暂无处方记录</text>
-        </view>
-      </scroll-view>
+    <view class="search-item">
+      <text class="search-label">手机号：</text>
+      <input class="search-input" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{searchParams.phone}}"/>
+    </view>
+    <view class="search-buttons">
+      <button class="search-button" bindtap="onSearch">搜索</button>
+      <button class="reset-button" bindtap="onReset">重置</button>
     </view>
   </view>
   
-  <!-- 加载中状态 -->
-  <view class="role-loading" wx:if="{{isCheckingRole}}">
-    <view class="loading-spinner"></view>
-    <text class="loading-text">加载中...</text>
+  <!-- 就诊提醒记录列表 -->
+  <view class="reminder-list">
+    <!-- 列表头部 -->
+    <view class="list-header">
+      <text class="header-cell phone-cell">手机号</text>
+      <text class="header-cell date-cell">上次日期</text>
+      <text class="header-cell days-cell">有效期(天)</text>
+      <text class="header-cell next-cell">下次日期</text>
+    </view>
+    
+    <!-- 列表内容 -->
+    <view wx:if="{{!isLoading && reminderList.length > 0}}" class="list-content">
+      <view wx:for="{{reminderList}}" wx:key="id" class="list-item {{isUrgent(item.nextDate) ? 'urgent-item' : ''}}">
+        <text class="list-cell phone-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.phone || '-'}}</text>
+        <text class="list-cell date-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDate || '-'}}</text>
+        <text class="list-cell days-cell {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">{{item.lastDays || '-'}}</text>
+        <text class="list-cell next-cell {{isUrgent(item.nextDate) ? 'urgent' : ''}} {{isUrgent(item.nextDate) ? 'urgent-text' : ''}}">
+          {{item.nextDate || '-'}}
+        </text>
+      </view>
+    </view>
+    
+    <!-- 空状态 -->
+    <view wx:if="{{!isLoading && reminderList.length === 0}}" class="empty-state">
+      <text class="empty-text">暂无就诊提醒记录</text>
+    </view>
+    
+    <!-- 加载状态 -->
+    <view wx:if="{{isLoading}}" class="loading-state">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
   </view>
-
-  <!-- 未登录或无权限状态 -->
-  <view class="no-permission" wx:if="{{!showPrescriptionModule && !isCheckingRole}}">
-    <text class="no-permission-text">您暂无权限查看此页面</text>
-  </view>
-
-  <!-- 底部信息 -->
-  <view class="footer">
-    <text class="footer-text">© 2023 文章阅读小程序</text>
+  
+  <!-- 分页组件 - 仅专业用户可见 -->
+  <view class="pagination" wx:if="{{isProfessionalUser && total > 0 && !isLoading}}">
+    <view class="pagination-info">
+      <text>共 {{total}} 条记录</text>
+    </view>
+    <view class="pagination-controls">
+      <button class="page-button" disabled="{{page === 1}}" bindtap="prevPage">上一页</button>
+      <text class="page-info">{{page}}/{{pages}}</text>
+      <button class="page-button" disabled="{{page === pages}}" bindtap="nextPage">下一页</button>
+      <picker bindchange="onPageSizeChange" value="{{pageSizeIndex}}" range="{{pageSizeOptions}}">
+        <view class="page-size-picker">
+          每页 {{size}} 条
+        </view>
+      </picker>
+    </view>
   </view>
 </view>

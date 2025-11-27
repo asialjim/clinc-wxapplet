@@ -1,194 +1,244 @@
 /* clinc.wxss */
+
+/* 页面基础样式 */
 .container {
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  padding: 20rpx;
   background-color: #f5f5f5;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-/* 用药提醒/处方台账模块样式 */
-.prescription-reminder {
-  margin: 3px 3px 20px 3px;
-  padding: 15px;
-  border-radius: 16px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+/* 标题样式 */
+.clinc-title {
+  text-align: center;
+  margin: 30rpx 0;
+  padding: 20rpx 0;
+  background-color: #fff;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
-.prescription-reminder-inner {
-  margin-bottom: 15px;
-  padding: 15px;
-  border-radius: 12px;
+title-text {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+/* 搜索区域样式 */
+.search-area {
   background-color: #ffffff;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
 }
 
-.prescription-reminder-inner:last-child {
+.search-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.search-item:last-child {
   margin-bottom: 0;
 }
 
-/* 用药提醒样式 - 紧凑一行展示 */
-.reminder-header {
-  margin-bottom: 10px;
+.search-label {
+  font-size: 28rpx;
+  color: #666666;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  height: 80rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  background-color: #fff;
+}
+
+.search-input:focus {
+  border-color: #1989fa;
+}
+
+.search-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-around;
+  margin-top: 30rpx;
 }
 
-.reminder-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  display: inline-block;
+.search-button {
+  flex: 1;
+  margin: 0 10rpx;
+  background-color: #1989fa;
+  color: #ffffff;
+  font-size: 28rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 8rpx;
 }
 
-.reminder-subtitle {
-  font-size: 13px;
-  color: #666;
-  display: inline-block;
-  margin-left: 8px;
+.search-button:active {
+  background-color: #40a9ff;
 }
 
-.reminder-content {
+.reset-button {
+  flex: 1;
+  margin: 0 10rpx;
+  background-color: #ffffff;
+  color: #1989fa;
+  border: 1rpx solid #1989fa;
+  font-size: 28rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 8rpx;
+}
+
+.reset-button:active {
+  background-color: #f5f5f5;
+}
+
+/* 提醒记录列表样式 */
+.reminder-list {
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.list-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
+  background-color: #f8f8f8;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #e0e0e0;
 }
 
-.reminder-item {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.reminder-label {
-  color: #666;
-  margin-right: 4px;
-}
-
-.reminder-value {
-  color: #333;
-  font-weight: 500;
-}
-
-.reminder-urgent {
-  color: #e64340;
+.header-cell {
+  font-size: 28rpx;
   font-weight: bold;
+  color: #666666;
 }
 
-/* 处方台账样式 */
-.ledger-header {
-  margin-bottom: 16px;
+.phone-cell {
+  flex: 2;
 }
 
-.ledger-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  display: block;
+.date-cell {
+  flex: 2;
+  text-align: center;
 }
 
-.ledger-subtitle {
-  font-size: 14px;
-  color: #666;
-  display: block;
-  margin-top: 4px;
+.days-cell {
+  flex: 1.5;
+  text-align: center;
 }
 
-.ledger-list {
-  height: 200px;
+.next-cell {
+  flex: 2;
+  text-align: center;
 }
 
-.ledger-item {
-  padding: 12px;
-  margin-bottom: 8px;
-  background-color: #f8f8f8;
-  border-radius: 8px;
+.list-content {
+  max-height: 600rpx;
+  overflow-y: auto;
+}
+
+.list-item {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ledger-patient {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-}
-
-.ledger-date {
-  font-size: 13px;
-  color: #666;
-}
-
-.ledger-status {
-  font-size: 12px;
-  color: #fff;
-  background-color: #1aad19;
-  padding: 2px 8px;
-  border-radius: 10px;
-  display: inline-block;
-  align-self: flex-start;
-}
-
-/* 空处方台账状态 */
-.empty-ledger {
-  height: 200px;
-  display: flex;
+  padding: 24rpx 20rpx;
+  border-bottom: 1rpx solid #f5f5f5;
   align-items: center;
-  justify-content: center;
-  background-color: #f8f8f8;
-  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.list-item:active {
+  background-color: #f9f9f9;
+}
+
+.list-cell {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+/* 紧急提醒样式 */
+.next-cell {
+  font-weight: 500;
+}
+
+.next-cell.urgent {
+  color: #ff6b6b !important;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+/* 紧急文本样式 - 加粗和淡红色 */
+.urgent-text {
+  font-weight: bold;
+  color: #ff9e9e; /* 淡红色 */
+}
+
+/* 紧急项目样式 - 背景色轻微变化 */
+.urgent-item {
+  background-color: #fff9f9;
+  border-left: 3px solid #ff6b6b;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 空状态样式 */
+.empty-state {
+  padding: 120rpx 0;
+  text-align: center;
+  color: #999999;
+  background-color: #fafafa;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
 }
 
 .empty-text {
-  font-size: 14px;
-  color: #999;
+  font-size: 32rpx;
+  color: #bbb;
 }
 
-/* 角色加载状态 */
-.role-loading {
+/* 加载状态样式 */
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
+  padding: 100rpx 0;
+  background-color: #fafafa;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1aad19;
+  width: 60rpx;
+  height: 60rpx;
   border-radius: 50%;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #1989fa;
   animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+  margin-bottom: 30rpx;
 }
 
 .loading-text {
-  font-size: 14px;
-  color: #999;
-}
-
-/* 无权限状态 */
-.no-permission {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-}
-
-.no-permission-text {
-  font-size: 16px;
-  color: #999;
+  font-size: 28rpx;
+  color: #666666;
 }
 
 @keyframes spin {
@@ -196,14 +246,79 @@
   100% { transform: rotate(360deg); }
 }
 
+/* 分页组件样式 */
+.pagination {
+  background-color: #ffffff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 30rpx;
+}
+
+.pagination-info {
+  text-align: center;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.page-button {
+  flex: 0 0 160rpx;
+  font-size: 28rpx;
+  padding: 12rpx 0;
+  background-color: #f5f5f5;
+  color: #333333;
+  border-radius: 8rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+}
+
+.page-button:active {
+  background-color: #e0e0e0;
+}
+
+.page-button[disabled] {
+  background-color: #f0f0f0;
+  color: #cccccc;
+}
+
+.page-button[disabled]:active {
+  background-color: #f0f0f0;
+}
+
+.page-info {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  color: #333333;
+  margin: 0 20rpx;
+  font-weight: 500;
+}
+
+.page-size-picker {
+  padding: 12rpx 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #666666;
+  background-color: #fff;
+}
+
 /* 底部信息 */
 .footer {
   margin-top: auto;
-  padding: 20px 0;
+  padding: 20rpx 0;
   text-align: center;
 }
 
 .footer-text {
-  font-size: 12px;
-  color: #999;
+  font-size: 24rpx;
+  color: #999999;
 }

@@ -1,314 +1,172 @@
 //clinc.js
 
-// 导入工具和会话管理
+// 导入模块
+const api = require('../../utils/api.js');
 const { RoleCode, RoleUtil } = require('../../utils/role-enum.js');
-const { refresh, UserSession } = require('../../utils/session.js');
+const session = require('../../utils/session.js');
 
 /**
- * 医疗页面组件
- * 负责展示用药提醒和处方台账功能
+ * 定期就诊提醒页面
  */
 Page({
   /**
    * 页面初始数据
    */
   data: {
-    // 用药提醒/处方台账模块相关数据
-    isCheckingRole: true,
-    showPrescriptionModule: false,
-    showBothModules: false,
-    userRole: '', // normal, professional, both
-    prescriptionInfo: {
-      lastDate: '',
-      lastDays: 0,
-      nextDate: ''
+    // 分页参数
+    page: 1,
+    size: 10,
+    total: 0,
+    pages: 0,
+    pageSizeOptions: ['10', '20', '50', '100'],
+    pageSizeIndex: 0,
+    
+    // 搜索参数
+    searchParams: {
+      name: '',
+      idNo: '',
+      phone: ''
     },
-    daysRemaining: -1,
-    ledgerList: []
+    
+    // 数据列表
+    reminderList: [],
+    
+    // 状态标志
+    isLoading: false,
+    
+    // 用户角色信息
+    userRoleBit: null,
+    isNormalUser: false,
+    isProfessionalUser: false,
+    userRoleDescriptions: ['未知用户']
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
-    console.log('医疗页面加载');
-
-    // 注册到全局通知系统，以便接收会话信息变更通知
+    console.log('定期就诊提醒页面加载');
+    
+    // 注册到全局通知系统
     const app = getApp();
     app.registerPage(this);
-
+    
+    // 获取用户角色
+    this.checkUserRole();
   },
-
-
+  
   /**
-   * 处理会话错误的通用逻辑
-   * @private
+   * 计算两个日期之间的天数差
+   * @param {string} dateStr - 日期字符串（YYYY-MM-DD格式）
+   * @returns {number} 天数差
    */
-  _handleSessionError: function() {
-    this.setData({
-      showPrescriptionModule: false,
-      isCheckingRole: false,
-      showBothModules: false
-    });
-  },
-
-  /**
-   * 检查用户角色并设置对应的数据展示
-   * @param {BigInt|number} roleBit - 用户角色位图
-   */
-  checkUserRole: function(roleBit) {
-    if (!roleBit) {
-      this._handleSessionError();
-      return;
-    }
-
-    // 检查是否为超管或同时拥有普通用户和专业用户权限
-    const isRootUser = RoleUtil.contains(roleBit, RoleCode.ROOT);
-    const isAdmin = RoleUtil.isAdmin(roleBit);
-    const hasBothPermissions = RoleUtil.isNormalUser(roleBit) && RoleUtil.isProfessionalUser(roleBit);
-
-    if (isRootUser || isAdmin || hasBothPermissions) {
-      // 超管、管理员或同时拥有两种权限的用户，同时显示两个模块
-      this.setData({
-        userRole: 'both',
-        showPrescriptionModule: true,
-        showBothModules: true,
-        isCheckingRole: false
-      });
-      // 同时获取用药提醒和处方台账数据
-      this.getPrescriptionReminder();
-      this.getPrescriptionLedger();
-    } else if (RoleUtil.isNormalUser(roleBit)) {
-      this.setData({
-        userRole: 'normal',
-        showPrescriptionModule: true,
-        showBothModules: false,
-        isCheckingRole: false
-      });
-      this.getPrescriptionReminder();
-    } else if (RoleUtil.isProfessionalUser(roleBit)) {
-      this.setData({
-        userRole: 'professional',
-        showPrescriptionModule: true,
-        showBothModules: false,
-        isCheckingRole: false
-      });
-      this.getPrescriptionLedger();
-    } else {
-      this._handleSessionError();
-    }
-  },
-
-  /**
-   * 获取用药提醒信息
-   * 在实际环境中，这里会调用真实接口获取数据
-   */
-  getPrescriptionReminder: async function() {
+  getDaysDiff: function(dateStr) {
     try {
-      // 在实际环境中调用接口
-      // const response = await api.get('/rest/clinc/prescription/reminder/user/status');
-
-      // 使用mock数据进行测试
-      const mockResponse = this.getMockPrescriptionReminder();
-
-      if (mockResponse.code === '0' && mockResponse.data) {
-        const prescriptionInfo = mockResponse.data;
-        // 计算剩余天数
-        const daysRemaining = this.calculateDaysRemaining(prescriptionInfo.nextDate);
-
-        this.setData({
-          prescriptionInfo: prescriptionInfo,
-          daysRemaining: daysRemaining
-        });
-      }
-    } catch (error) {
-      console.error('获取用药提醒失败:', error);
-      wx.showToast({
-        title: '获取用药提醒失败',
-        icon: 'none'
-      });
-    }
-  },
-
-  /**
-   * 获取处方台账信息
-   * 在实际环境中，这里会调用真实接口获取数据
-   */
-  getPrescriptionLedger: async function() {
-    try {
-      // 在实际环境中调用接口
-      // const response = await api.get('/rest/clinc/prescription/ledger', { page: 1, size: 5 });
-
-      // 使用mock数据进行测试
-      const mockResponse = this.getMockPrescriptionLedger();
-
-      if (mockResponse.code === '0' && mockResponse.data) {
-        this.setData({
-          ledgerList: mockResponse.data
-        });
-      }
-    } catch (error) {
-      console.error('获取处方台账失败:', error);
-      wx.showToast({
-        title: '获取处方台账失败',
-        icon: 'none'
-      });
-    }
-  },
-
-  /**
-   * 计算距离下次开药的剩余天数
-   * @param {string} nextDateStr - 下次开药日期字符串
-   * @returns {number} 剩余天数
-   */
-  calculateDaysRemaining: function(nextDateStr) {
-    if (!nextDateStr) return -1;
-
-    try {
-      const nextDate = new Date(nextDateStr);
-      const currentDate = new Date();
-
-      // 只比较年月日，忽略时间
-      nextDate.setHours(0, 0, 0, 0);
-      currentDate.setHours(0, 0, 0, 0);
-
-      const diffTime = nextDate - currentDate;
+      // 解析日期字符串
+      const targetDate = new Date(dateStr);
+      const today = new Date();
+      
+      // 设置时间为00:00:00，只比较日期部分
+      targetDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      
+      // 计算毫秒差并转换为天数
+      const diffTime = Math.abs(targetDate - today);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+      
       return diffDays;
     } catch (error) {
-      console.error('计算剩余天数失败:', error);
-      return -1;
+      console.error('日期计算错误:', error);
+      return 999; // 默认返回大值，表示不是紧急日期
     }
   },
-
+  
   /**
-   * 获取模拟用药提醒数据
-   * @returns {Object} 模拟的用药提醒响应数据
+   * 标记紧急提醒记录
+   * @param {Array} dataList - 提醒记录列表
+   * @returns {Array} 添加了isUrgent属性的记录列表
    */
-  getMockPrescriptionReminder: function() {
-    // 生成一些模拟数据
-    const today = new Date();
-    const lastDate = new Date(today);
-    lastDate.setDate(today.getDate() - 30);
-
-    const nextDate = new Date(today);
-    nextDate.setDate(today.getDate() + 2); // 设置为2天后，测试少于3天的情况
-
-    return {
-      'status': 200,
-      'thr': false,
-      'pageable': false,
-      'code': '0',
-      'msg': '成功',
-      'data': {
-        'lastDate': this.formatDate(lastDate),
-        'lastDays': 30,
-        'nextDate': this.formatDate(nextDate)
-      },
-      'errs': [],
-      'page': 1,
-      'size': 1,
-      'pages': 1,
-      'total': 1
-    };
+  markUrgentRecords: function(dataList) {
+    return dataList.map(item => {
+      // 假设下次就诊日期字段为 nextVisitDate
+      const nextVisitDate = item.nextVisitDate || item.visitDate || '';
+      const daysDiff = this.getDaysDiff(nextVisitDate);
+      
+      // 添加isUrgent属性：距离今天不足两天为紧急
+      return {
+        ...item,
+        isUrgent: daysDiff < 2
+      };
+    });
   },
-
+  
   /**
-   * 获取模拟处方台账数据
-   * @returns {Object} 模拟的处方台账响应数据
+   * 判断日期是否为紧急提醒（不足两天）
+   * 用于WXML模板中直接调用
+   * @param {string} dateStr - 日期字符串
+   * @returns {boolean} 是否为紧急提醒
    */
-  getMockPrescriptionLedger: function() {
-    return {
-      'status': 200,
-      'thr': false,
-      'pageable': false,
-      'code': '0',
-      'msg': '成功',
-      'data': [
-        {
-          'patientName': '张三',
-          'prescriptionDate': '2024-10-10',
-          'status': '已完成'
-        },
-        {
-          'patientName': '李四',
-          'prescriptionDate': '2024-10-08',
-          'status': '处理中'
-        },
-        {
-          'patientName': '王五',
-          'prescriptionDate': '2024-10-05',
-          'status': '已完成'
-        },
-        {
-          'patientName': '赵六',
-          'prescriptionDate': '2024-10-01',
-          'status': '已完成'
-        },
-        {
-          'patientName': '孙七',
-          'prescriptionDate': '2024-09-28',
-          'status': '已取消'
-        }
-      ],
-      'errs': [],
-      'page': 1,
-      'size': 5,
-      'pages': 2,
-      'total': 10
-    };
+  isUrgent: function(dateStr) {
+    return this.getDaysDiff(dateStr) < 2;
   },
-
+  
   /**
-   * 格式化日期为yyyy-MM-dd格式
-   * @param {Date} date - 日期对象
-   * @returns {string} 格式化后的日期字符串
+   * 检查用户角色
    */
-  formatDate: function(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  checkUserRole: function() {
+    // 从会话中获取用户角色位图
+    const userRoleBit = session.getRoleBit();
+    
+    // 判断用户角色类型
+    const isNormalUser = RoleUtil.isNormalUser(userRoleBit);
+    const isProfessionalUser = RoleUtil.isProfessionalUser(userRoleBit);
+    const userRoleDescriptions = RoleUtil.getUserRoleDescriptions(userRoleBit);
+    
+    console.log('用户角色检查:', {
+      userRoleBit,
+      isNormalUser,
+      isProfessionalUser,
+      userRoleDescriptions
+    });
+    
+    // 更新页面数据
+    this.setData({
+      userRoleBit,
+      isNormalUser,
+      isProfessionalUser,
+      userRoleDescriptions
+    });
+    
+    // 初始加载数据
+    this.loadReminderData();
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function() {
-    console.log('医疗页面渲染完成');
+    console.log('定期就诊提醒页面渲染完成');
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow: function() {
-    console.log('医疗页面显示');
-    // 重新从全局数据更新用户会话信息，确保显示最新数据
-    this.updateUserSessionInfo();
-  },
-
-  /**
-   * 监听全局会话信息变更
-   */
-  onGlobalDataChange: function() {
-    // 用户会话信息发生变更，重新更新数据
-    console.log('全局会话信息变更，刷新医疗模块');
-    this.updateUserSessionInfo();
+    console.log('定期就诊提醒页面显示');
   },
 
   /**
    * 生命周期函数--监听页面隐藏
    */
   onHide: function() {
-    console.log('医疗页面隐藏');
+    console.log('定期就诊提醒页面隐藏');
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function() {
-    console.log('医疗页面卸载');
+    console.log('定期就诊提醒页面卸载');
     // 从全局通知系统注销
     const app = getApp();
     if (app && typeof app.unregisterPage === 'function') {
@@ -321,9 +179,11 @@ Page({
    */
   onPullDownRefresh: function() {
     console.log('下拉刷新');
-    // 重新加载数据
-    this.updateUserSessionInfo();
-    wx.stopPullDownRefresh();
+    // 重置为第一页并重新加载
+    this.setData({ page: 1 });
+    this.loadReminderData(() => {
+      wx.stopPullDownRefresh();
+    });
   },
 
   /**
@@ -332,8 +192,206 @@ Page({
    */
   onShareAppMessage: function() {
     return {
-      title: '微信小程序医疗服务',
+      title: '定期就诊提醒',
       path: '/pages/clinc/clinc'
     };
+  },
+  
+  /**
+   * 获取就诊提醒记录数据
+   * @param {Function} callback - 回调函数
+   */
+  loadReminderData: function(callback) {
+    const { isNormalUser, isProfessionalUser, page, size, searchParams } = this.data;
+    
+    // 根据用户角色构建不同的请求参数
+    let params = {};
+    
+    if (isNormalUser) {
+      // 普通用户：固定获取1条自己的数据，不需要搜索参数
+      console.log('普通用户模式：获取自己的最新一条记录');
+      params = {
+        page: 1,
+        size: 1
+      };
+    } else if (isProfessionalUser) {
+      // 专业用户：支持分页和搜索
+      console.log('专业用户模式：支持多记录查询');
+      params = {
+        page: page,
+        size: size,
+        name: searchParams.name,
+        idNo: searchParams.idNo,
+        phone: searchParams.phone
+      };
+    } else {
+      // 其他用户角色：默认获取1条数据
+      console.log('其他用户角色：默认查询模式');
+      params = {
+        page: 1,
+        size: 1
+      };
+    }
+    
+    // 设置加载状态
+    this.setData({ isLoading: true });
+    
+    // 调用API获取数据
+    api.get('/rest/clinc/prescription/reminder/list', params)
+      .then(res => {
+        console.log('获取就诊提醒记录成功:', res);
+        
+        if (res.code === '0' && res.data) {
+            // 确保数据是数组格式
+            let dataList = Array.isArray(res.data) ? res.data : [];
+            
+            // 标记紧急提醒记录
+            dataList = this.markUrgentRecords(dataList);
+            
+            // 对于普通用户，如果有多条数据（意外情况），只保留第一条
+            if (isNormalUser && dataList.length > 1) {
+              dataList = [dataList[0]];
+            }
+            
+            this.setData({
+              reminderList: dataList,
+              total: res.total || dataList.length,
+              pages: res.pages || 1
+            });
+          } else {
+          wx.showToast({
+            title: res.msg || '获取数据失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('获取就诊提醒记录失败:', err);
+        wx.showToast({
+          title: '网络异常，请稍后重试',
+          icon: 'none'
+        });
+      })
+      .finally(() => {
+        // 取消加载状态
+        this.setData({ isLoading: false });
+        
+        // 执行回调
+        if (typeof callback === 'function') {
+          callback();
+        }
+      });
+  },
+  
+  /**
+   * 姓名输入处理
+   */
+  onNameInput: function(e) {
+    this.setData({
+      'searchParams.name': e.detail.value
+    });
+  },
+  
+  /**
+   * 证件号输入处理
+   */
+  onIdNoInput: function(e) {
+    this.setData({
+      'searchParams.idNo': e.detail.value
+    });
+  },
+  
+  /**
+   * 手机号输入处理
+   */
+  onPhoneInput: function(e) {
+    this.setData({
+      'searchParams.phone': e.detail.value
+    });
+  },
+  
+  /**
+   * 搜索按钮点击事件
+   */
+  onSearch: function() {
+    // 重置为第一页
+    this.setData({ page: 1 });
+    // 加载数据
+    this.loadReminderData();
+  },
+  
+  /**
+   * 重置按钮点击事件
+   */
+  onReset: function() {
+    // 重置搜索参数
+    this.setData({
+      searchParams: {
+        name: '',
+        idNo: '',
+        phone: ''
+      },
+      page: 1
+    });
+    // 加载数据
+    this.loadReminderData();
+  },
+  
+  /**
+   * 上一页
+   */
+  prevPage: function() {
+    if (this.data.page > 1) {
+      this.setData({ page: this.data.page - 1 });
+      this.loadReminderData();
+    }
+  },
+  
+  /**
+   * 下一页
+   */
+  nextPage: function() {
+    if (this.data.page < this.data.pages) {
+      this.setData({ page: this.data.page + 1 });
+      this.loadReminderData();
+    }
+  },
+  
+  /**
+   * 每页显示条数变化
+   */
+  onPageSizeChange: function(e) {
+    const index = e.detail.value;
+    const size = parseInt(this.data.pageSizeOptions[index]);
+    
+    this.setData({
+      pageSizeIndex: index,
+      size: size,
+      page: 1 // 重置为第一页
+    });
+    
+    this.loadReminderData();
+  },
+  
+  /**
+   * 判断下次就诊日期是否紧急（7天内）
+   */
+  isUrgent: function(nextDateStr) {
+    if (!nextDateStr) return false;
+    
+    try {
+      const nextDate = new Date(nextDateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      nextDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = nextDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays >= 0 && diffDays <= 7;
+    } catch (error) {
+      console.error('日期判断错误:', error);
+      return false;
+    }
   }
 });
