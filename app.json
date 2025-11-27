@@ -41,12 +41,6 @@
         "text": "我的",
         "iconPath": "icon/user.png",
         "selectedIconPath": "icon/user_active.png"
-      },
-      {
-        "pagePath": "pages/sensitive/sensitive",
-        "text": "敏感数据",
-        "iconPath": "icon/lock.png",
-        "selectedIconPath": "icon/lock_active.png"
       }
     ]
   },
