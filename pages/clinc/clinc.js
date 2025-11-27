@@ -23,7 +23,7 @@ Page({
     
     // 分页参数
     page: 1,
-    size: 10,
+    size: 3,
     total: 0,
     pages: 0,
     pageSizeOptions: ['3', '5', '10'],
@@ -256,6 +256,11 @@ Page({
     console.log('API请求URL:', apiUrl);
     api.get(apiUrl,  {pageCallable: data => {
         console.log('分页结果:', data);
+           this.setData({
+            page: data.page || 1,
+            total: data.total || 0,
+            pages: data.pages || 1
+            });
     }, throwCallable: err => {
           wx.showToast({
             title: err.msg || '获取数据失败', 
