@@ -256,10 +256,14 @@ Page({
     console.log('API请求URL:', apiUrl);
     api.get(apiUrl,  {pageCallable: data => {
         console.log('分页结果:', data);
+    }, throwCallable: err => {
+          wx.showToast({
+            title: err.msg || '获取数据失败', 
+            icon: 'none'
+          });
     }})
       .then(res => {
         console.log('获取就诊提醒记录成功:', res);
-        if (res) {
             // 确保数据是数组格式
             let dataList = Array.isArray(res) ? res : [];
             
@@ -283,12 +287,6 @@ Page({
               total: isProfessionalUser ? (res.total || dataList.length) : dataList.length,
               pages: isProfessionalUser ? (res.pages || 1) : 1
             });
-          } else {
-          wx.showToast({
-            title: res.msg || '获取数据失败',
-            icon: 'none'
-          });
-        }
       })
       .catch(err => {
         console.error('获取就诊提醒记录失败:', err);

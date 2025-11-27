@@ -41,7 +41,7 @@ function parse(res, pageCallable = null, throwCallable = null) {
 
   // 2. 如果thr === true，且throwCallable不为空，则调用throwCallable函数
   if (responseData.thr === true && throwCallable && typeof throwCallable === 'function') {
-    throwCallable(res);
+    throwCallable(responseData);
   }
 
   // 3. 如果pageable === true，且pageCallable不为空，则调用pageCallable函数
