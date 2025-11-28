@@ -6,7 +6,7 @@ const api = require('../../utils/api.js');
 const { rest } = require('../../utils/url.js');
 // 导入角色相关模块
 const {RoleCode, RoleUtil} = require('../../utils/role-enum.js')
-const session = require('../../utils/session.js');
+const {getUserSession} = require('../../utils/session.js');
 
 /**
  * 定期就诊提醒页面
@@ -63,7 +63,7 @@ Page({
   checkUserRole: function() {
     try {
       // 获取用户信息
-      const userInfo = session.get('userInfo') || {};
+      const userInfo = getUserSession || {};
       console.log('当前用户信息:', userInfo);
       
       // 获取用户角色位图
