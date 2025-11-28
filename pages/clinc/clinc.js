@@ -68,7 +68,7 @@ Page({
       console.log('当前用户信息:', userInfo);
       
       // 获取用户角色位图
-      const roleBit = userInfo.roleBit || 0;
+      const roleBit = userInfo.roleBit || BigInt(0);
       console.log('当前用户角色位图:', roleBit);
       
       // 使用RoleUtil中定义的方法判断用户类型
@@ -79,13 +79,19 @@ Page({
       // 获取用户角色描述
       const roleDescriptions = RoleUtil.getUserRoleDescriptions(roleBit);
       console.log('用户角色描述:', roleDescriptions);
+
+      this.data.userInfo = userInfo;
+      this.data.isNormalUser = isNormalUser;
+      this.data.isProfessionalUser = isProfessionalUser;
       
       // 更新用户角色状态
+      /*
       this.setData({
         userInfo: userInfo,
         isNormalUser: isNormalUser,
         isProfessionalUser: isProfessionalUser
       });
+      */
       
       console.log('用户角色检查结果: isNormalUser=' + isNormalUser + ', isProfessionalUser=' + isProfessionalUser);
       
