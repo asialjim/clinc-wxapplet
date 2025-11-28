@@ -33,7 +33,7 @@ class UserSession {
     session.token = data.token || '';
     session.appid = data.appid || '';
     session.userid = data.userid || '';
-    session.roleBit = data.roleBit || 0;
+    session.roleBit = data.roleBitStr ? BigInt(data.roleBitStr) : BigInt(data.roleBit) || 0;
     session.chl = data.chl || '';
     session.chlAppid = data.chlAppid || '';
     session.chlAppType = data.chlAppType || '';
