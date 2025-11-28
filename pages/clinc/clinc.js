@@ -63,7 +63,7 @@ Page({
   checkUserRole: function() {
     try {
       // 获取用户信息
-      const userInfo = getUserSession || {};
+      const userInfo = getUserSession() || {};
       console.log('当前用户信息:', userInfo);
       
       // 获取用户角色位图
