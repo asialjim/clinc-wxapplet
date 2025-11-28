@@ -80,7 +80,7 @@ Page({
       const roleDescriptions = RoleUtil.getUserRoleDescriptions(roleBit);
       console.log('用户角色描述:', roleDescriptions);
 
-      this.data.userInfo = userInfo;
+      this.data.userInfo = userInfo.toObject();
       this.data.isNormalUser = isNormalUser;
       this.data.isProfessionalUser = isProfessionalUser;
       

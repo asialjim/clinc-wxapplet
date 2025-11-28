@@ -54,7 +54,7 @@ class UserSession {
       token: this.token,
       appid: this.appid,
       userid: this.userid,
-      roleBit: this.roleBit,
+      roleBit: this.roleBit.toString(),
       chl: this.chl,
       chlAppid: this.chlAppid,
       chlAppType: this.chlAppType,
