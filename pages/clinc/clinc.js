@@ -82,7 +82,7 @@ Page({
       
       // 更新用户角色状态
       this.setData({
-        userInfo: userInfo,
+        // userInfo: userInfo,
         isNormalUser: isNormalUser,
         isProfessionalUser: isProfessionalUser
       });
