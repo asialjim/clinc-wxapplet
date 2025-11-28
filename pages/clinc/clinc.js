@@ -17,7 +17,7 @@ Page({
    */
   data: {
     // 用户角色信息
-    userInfo: null,
+    userInfo: {},
     isNormalUser: false,
     isProfessionalUser: false,
     
