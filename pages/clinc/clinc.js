@@ -84,16 +84,8 @@ Page({
       this.data.isNormalUser = isNormalUser;
       this.data.isProfessionalUser = isProfessionalUser;
       
-      // 更新用户角色状态
-      /*
-      this.setData({
-        userInfo: userInfo,
-        isNormalUser: isNormalUser,
-        isProfessionalUser: isProfessionalUser
-      });
-      */
       
-      console.log('用户角色检查结果: isNormalUser=' + isNormalUser + ', isProfessionalUser=' + isProfessionalUser);
+      console.log('用户:'+ this.data.userInfo +',角色检查结果: isNormalUser=' + isNormalUser + ', isProfessionalUser=' + isProfessionalUser);
       
       // 初始加载数据
       this.loadReminderData();
