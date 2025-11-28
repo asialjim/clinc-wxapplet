@@ -5,8 +5,8 @@ const api = require('../../utils/api.js');
 // 导入URL构建工具
 const { rest } = require('../../utils/url.js');
 // 导入角色相关模块
-const {RoleCode, RoleUtil} = require('../../utils/role-enum.js')
-const {getUserSession, refreshSession} = require('../../utils/session.js');
+const {RoleUtil} = require('../../utils/role-enum.js')
+const {getUserSession, refreshSession, UserSession} = require('../../utils/session.js');
 
 /**
  * 定期就诊提醒页面
@@ -17,7 +17,7 @@ Page({
    */
   data: {
     // 用户角色信息
-    userInfo: {},
+    userInfo: null, 
     isNormalUser: false,
     isProfessionalUser: false,
     
@@ -82,7 +82,7 @@ Page({
       
       // 更新用户角色状态
       this.setData({
-        // userInfo: userInfo,
+        userInfo: userInfo,
         isNormalUser: isNormalUser,
         isProfessionalUser: isProfessionalUser
       });
